@@ -10,7 +10,7 @@ from typing import Optional
 import uuid
 from datetime import datetime
 from utils.whisper_service import transcribe_audio
-from utils.openai_service import generate_response
+from utils.openai_service import generate_response, generate_tts
 from utils.mongo_service import save_conversation, get_conversation_history
 
 app = FastAPI(title="음성 챗봇 API")
@@ -87,6 +87,23 @@ async def get_history(conversation_id: str):
         return {"history": history}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"대화 기록 조회 오류: {str(e)}")
+
+@app.post("/tts")
+async def tts_endpoint(text: str = Form(...)):
+    try:
+        tts_path = await generate_tts(text)
+        return {"tts_url": f"/{tts_path}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"TTS 변환 오류: {str(e)}")
+
+@app.post("/delete-tts")
+async def delete_tts(request: Request):
+    data = await request.json()
+    tts_path = data.get("tts_path")
+    if tts_path and tts_path.startswith("static/") and os.path.exists(tts_path):
+        os.remove(tts_path)
+        return {"result": "deleted"}
+    return {"result": "not_found"}
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True) 

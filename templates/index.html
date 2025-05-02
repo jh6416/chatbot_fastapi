@@ -249,6 +249,24 @@
                 
                 // 봇 응답 표시
                 addMessage(data.response, 'bot');
+
+                // TTS 요청 및 자동 재생
+                fetch('/tts', {
+                    method: 'POST',
+                    body: new URLSearchParams({ text: data.response })
+                })
+                .then(res => res.json())
+                .then(ttsData => {
+                    const audio = new Audio(ttsData.tts_url);
+                    audio.play();
+                    audio.addEventListener('ended', () => {
+                        fetch('/delete-tts', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tts_path: ttsData.tts_url.replace(/^\//, '') })
+                        });
+                    });
+                });
                 
                 // 대화 ID 저장
                 conversationId = data.conversation_id;
