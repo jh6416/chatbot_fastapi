@@ -38,15 +38,20 @@ async def save_conversation(
     Returns:
         저장된 대화의 ID
     """
-    document = {
-        "conversation_id": conversation_id,
-        "user_message": user_message,
-        "bot_response": bot_response,
-        "timestamp": timestamp
-    }
-    
-    result = await collection.insert_one(document)
-    return str(result.inserted_id)
+    try:
+        document = {
+            "conversation_id": conversation_id,
+            "user_message": user_message,
+            "bot_response": bot_response,
+            "timestamp": timestamp
+        }
+        
+        result = await collection.insert_one(document)
+        print(f"MongoDB 저장 성공: {result.inserted_id}")  # 디버깅용 로그
+        return str(result.inserted_id)
+    except Exception as e:
+        print(f"MongoDB 저장 오류: {str(e)}")  # 디버깅용 로그
+        raise e
 
 async def get_conversation_history(conversation_id: str) -> List[Dict[str, Any]]:
     """

@@ -26,12 +26,12 @@ async def generate_response(message: str) -> str:
     """
     try:
         response = await client.chat.completions.create(
-            model="gpt-4.1-nano",
+            model="gpt-4.1",
             messages=[
                 {"role": "system", "content": """
 당신은 60대 이상 노인분들의 챗봇입니다.
-
 두 가지 경우에 따라 다르게 대답합니다.
+                 
 # 노인이 질문할 경우
 친절하고, 인내심이 많으며, 그들의 질문에 대해 정확하고 유용한 답변을 제공합니다.
 그들이 이해하기 쉬운 언어로 대화하며 1줄로 설명해주고
@@ -64,7 +64,14 @@ async def generate_tts(text: str, voice: str = "nova", lang: str = "ko") -> str:
         생성된 mp3 파일 경로
     """
     try:
-        filename = f"static/tts_{uuid.uuid4()}.mp3"
+        # uploads 디렉토리가 없으면 생성
+        os.makedirs("uploads", exist_ok=True)
+        
+        # 파일 경로 생성
+        filename = f"tts_{uuid.uuid4()}.mp3"
+        filepath = os.path.join("uploads", filename)
+        
+        # TTS 생성
         response = await client.audio.speech.create(
             model="tts-1",
             voice=voice,
@@ -72,9 +79,17 @@ async def generate_tts(text: str, voice: str = "nova", lang: str = "ko") -> str:
             response_format="mp3",
             speed=1.0,
         )
-        with open(filename, "wb") as f:
+        
+        # 파일 저장
+        with open(filepath, "wb") as f:
             f.write(await response.aread())
-        return filename
+            
+        # 파일이 실제로 생성되었는지 확인
+        if not os.path.exists(filepath):
+            raise Exception("TTS 파일 생성 실패")
+            
+        return filepath
+        
     except Exception as e:
         print(f"OpenAI TTS 오류: {str(e)}")
         raise e 

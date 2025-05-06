@@ -1,4 +1,4 @@
-# FastAPI 음성 챗봇
+# FastAPI 음성 챗봇 0502
 
 Whisper, OpenAI GPT 및 MongoDB를 활용한 음성 인식 챗봇 애플리케이션입니다.
 
