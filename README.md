@@ -1,8 +1,11 @@
 # FastAPI 음성 챗봇 0506
 
 MONGODB_URI=mongodb://localhost:27017/
+
 MONGODB_DB_NAME=chatbot_db
+
 MONGODB_COLLECTION=conversations 
+
 Whisper, OpenAI GPT 및 MongoDB를 활용한 음성 인식 챗봇 애플리케이션입니다.
 
 ## 기능
